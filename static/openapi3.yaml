@@ -1,0 +1,576 @@
+openapi: 3.0.3
+info:
+    title: Juxt Service
+    description: Tum Tum Tum Tum Sahur
+    version: 0.0.1
+servers:
+    - url: http://localhost:9090
+paths:
+    /api/v1/user:
+        get:
+            tags:
+                - user
+            summary: list user
+            description: List all users with pagination
+            operationId: user#list
+            parameters:
+                - name: limit
+                  in: query
+                  description: Number of users to return per page
+                  allowEmptyValue: true
+                  schema:
+                    type: integer
+                    description: Number of users to return per page
+                    default: 10
+                    example: 10
+                    format: int64
+                    minimum: 1
+                    maximum: 100
+                  example: 10
+                - name: offset
+                  in: query
+                  description: Number of users to skip
+                  allowEmptyValue: true
+                  schema:
+                    type: integer
+                    description: Number of users to skip
+                    default: 0
+                    example: 0
+                    format: int64
+                    minimum: 0
+                  example: 0
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/User'
+                                example:
+                                    - admin: false
+                                      firstName: John
+                                      id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                      kcId: 550e8400-e29b-41d4-a716-446655440000
+                                      lastName: Doe
+                                      nickname: JD
+                                    - admin: false
+                                      firstName: John
+                                      id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                      kcId: 550e8400-e29b-41d4-a716-446655440000
+                                      lastName: Doe
+                                      nickname: JD
+                                    - admin: false
+                                      firstName: John
+                                      id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                      kcId: 550e8400-e29b-41d4-a716-446655440000
+                                      lastName: Doe
+                                      nickname: JD
+                            example:
+                                - admin: false
+                                  firstName: John
+                                  id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                  kcId: 550e8400-e29b-41d4-a716-446655440000
+                                  lastName: Doe
+                                  nickname: JD
+                                - admin: false
+                                  firstName: John
+                                  id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                  kcId: 550e8400-e29b-41d4-a716-446655440000
+                                  lastName: Doe
+                                  nickname: JD
+            security:
+                - oauth2_header_Authorization:
+                    - openid
+        post:
+            tags:
+                - user
+            summary: create user
+            description: Create a new user
+            operationId: user#create
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateUserPayload'
+                        example:
+                            admin: false
+                            firstName: John
+                            lastName: Doe
+                            nickname: JD
+                            password: Secret!1
+            responses:
+                "201":
+                    description: Created response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                            example:
+                                admin: false
+                                firstName: John
+                                id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                kcId: 550e8400-e29b-41d4-a716-446655440000
+                                lastName: Doe
+                                nickname: JD
+            security:
+                - oauth2_header_Authorization:
+                    - openid
+    /api/v1/user/{id}:
+        delete:
+            tags:
+                - user
+            summary: delete user
+            description: Delete a user
+            operationId: user#delete
+            parameters:
+                - name: id
+                  in: path
+                  description: User ID
+                  required: true
+                  schema:
+                    type: string
+                    description: User ID
+                    example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    format: uuid
+                  example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+            responses:
+                "204":
+                    description: No Content response.
+                "400":
+                    description: 'badRequest: Invalid Request'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequest'
+                            example:
+                                fault: false
+                                id: Aonp24i2
+                                message: ID must be greater or equal than 1 but got value -1
+                                name: invalid_range
+                                temporary: false
+                                timeout: false
+                "401":
+                    description: 'unauthorized: Auth Failed'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Unauthorized'
+                            example:
+                                message: Qui id quis ut corporis nesciunt.
+                "403":
+                    description: 'forbidden: Accesso negato'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Forbidden'
+                            example:
+                                message: Repellat aut accusantium.
+                "404":
+                    description: 'notFound: Not Found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFound'
+                            example:
+                                message: Aliquid aut.
+                "500":
+                    description: 'internalServerError: Internal Server Error'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+                            example:
+                                message: Ut nihil ipsam incidunt minima.
+            security:
+                - oauth2_header_Authorization:
+                    - openid
+        get:
+            tags:
+                - user
+            summary: get user
+            description: Get a user by ID
+            operationId: user#get
+            parameters:
+                - name: id
+                  in: path
+                  description: User ID
+                  required: true
+                  schema:
+                    type: string
+                    description: User ID
+                    example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    format: uuid
+                  example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                            example:
+                                admin: false
+                                firstName: John
+                                id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                kcId: 550e8400-e29b-41d4-a716-446655440000
+                                lastName: Doe
+                                nickname: JD
+                "400":
+                    description: 'badRequest: Invalid Request'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequest'
+                            example:
+                                fault: false
+                                id: Aonp24i2
+                                message: ID must be greater or equal than 1 but got value -1
+                                name: invalid_range
+                                temporary: false
+                                timeout: false
+                "401":
+                    description: 'unauthorized: Auth Failed'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Unauthorized'
+                            example:
+                                message: Corrupti est numquam perspiciatis esse.
+                "403":
+                    description: 'forbidden: Accesso negato'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Forbidden'
+                            example:
+                                message: Ad necessitatibus libero.
+                "404":
+                    description: 'notFound: Not Found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFound'
+                            example:
+                                message: Tenetur itaque ipsam et rerum reprehenderit modi.
+                "500":
+                    description: 'internalServerError: Internal Server Error'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+                            example:
+                                message: Ex illo et soluta.
+            security:
+                - oauth2_header_Authorization:
+                    - openid
+        put:
+            tags:
+                - user
+            summary: update user
+            description: Update a user
+            operationId: user#update
+            parameters:
+                - name: id
+                  in: path
+                  description: User ID
+                  required: true
+                  schema:
+                    type: string
+                    description: User ID
+                    example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    format: uuid
+                  example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateRequestBody'
+                        example:
+                            admin: false
+                            firstName: John
+                            lastName: Doe
+                            nickname: JD
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                            example:
+                                admin: false
+                                firstName: John
+                                id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                                kcId: 550e8400-e29b-41d4-a716-446655440000
+                                lastName: Doe
+                                nickname: JD
+                "400":
+                    description: 'badRequest: Invalid Request'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequest'
+                            example:
+                                fault: false
+                                id: Aonp24i2
+                                message: ID must be greater or equal than 1 but got value -1
+                                name: invalid_range
+                                temporary: false
+                                timeout: false
+                "401":
+                    description: 'unauthorized: Auth Failed'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Unauthorized'
+                            example:
+                                message: Id ducimus blanditiis et dolore temporibus ut.
+                "403":
+                    description: 'forbidden: Accesso negato'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Forbidden'
+                            example:
+                                message: Sit ad.
+                "404":
+                    description: 'notFound: Not Found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFound'
+                            example:
+                                message: Itaque eligendi.
+                "500":
+                    description: 'internalServerError: Internal Server Error'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+                            example:
+                                message: Voluptatem et eligendi et blanditiis quia odio.
+            security:
+                - oauth2_header_Authorization:
+                    - openid
+components:
+    schemas:
+        BadRequest:
+            type: object
+            properties:
+                fault:
+                    type: boolean
+                    description: Indica se l'errore è dovuto a un problema del server
+                    example: false
+                id:
+                    type: string
+                    description: ID dell'errore
+                    example: Aonp24i2
+                message:
+                    type: string
+                    description: Descrizione dettagliata dell'errore
+                    example: ID must be greater or equal than 1 but got value -1
+                name:
+                    type: string
+                    description: Nome dell'errore
+                    example: invalid_range
+                temporary:
+                    type: boolean
+                    description: Indica se l'errore è temporaneo
+                    example: false
+                timeout:
+                    type: boolean
+                    description: Indica se l'errore è dovuto a un timeout
+                    example: false
+            description: Body di risposta per la richiesta non valida (400)
+            example:
+                fault: false
+                id: Aonp24i2
+                message: ID must be greater or equal than 1 but got value -1
+                name: invalid_range
+                temporary: false
+                timeout: false
+            required:
+                - name
+                - id
+                - message
+                - temporary
+                - timeout
+                - fault
+        CreateUserPayload:
+            type: object
+            properties:
+                admin:
+                    type: boolean
+                    description: Is admin?
+                    default: false
+                    example: false
+                firstName:
+                    type: string
+                    description: First name
+                    example: John
+                lastName:
+                    type: string
+                    description: Last name
+                    example: Doe
+                nickname:
+                    type: string
+                    description: Nickname
+                    example: JD
+                    maxLength: 16
+                password:
+                    type: string
+                    description: User password
+                    example: Secret!1
+                    pattern: ^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]{};':"\\|,.<>\/?]{6,}$
+                    minLength: 6
+            example:
+                admin: false
+                firstName: John
+                lastName: Doe
+                nickname: JD
+                password: Secret!1
+            required:
+                - firstName
+                - lastName
+        Forbidden:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Detailed description of the error
+                    default: Access to the resource is forbidden
+                    example: Voluptate et odit rerum dignissimos magnam debitis.
+            description: Cannot access the resource
+            example:
+                message: Doloremque temporibus velit sunt occaecati.
+            required:
+                - message
+        InternalServerError:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Descrizione dell'errore
+                    default: Errore di comunicazione con il server
+                    example: Saepe repudiandae est eligendi a.
+            description: Errore nel server
+            example:
+                message: Veniam aut necessitatibus.
+            required:
+                - message
+        NotFound:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Descrizione dell'errore
+                    default: Dato non trovato
+                    example: Quia recusandae et incidunt.
+            description: 'Dato non trovato all''interno del sistema '
+            example:
+                message: Repellendus perferendis.
+            required:
+                - message
+        Unauthorized:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Descrizione dell'errore
+                    default: Utente già registrato a
+                    example: Est qui error eos.
+            description: User not authorized to access the resource
+            example:
+                message: Molestias dicta laborum doloremque.
+            required:
+                - message
+        UpdateRequestBody:
+            type: object
+            properties:
+                admin:
+                    type: boolean
+                    description: Is admin?
+                    default: false
+                    example: false
+                firstName:
+                    type: string
+                    description: First name
+                    example: John
+                lastName:
+                    type: string
+                    description: Last name
+                    example: Doe
+                nickname:
+                    type: string
+                    description: Nickname
+                    example: JD
+            example:
+                admin: false
+                firstName: John
+                lastName: Doe
+                nickname: JD
+            required:
+                - firstName
+                - lastName
+        User:
+            type: object
+            properties:
+                admin:
+                    type: boolean
+                    description: Is the user an admin?
+                    default: false
+                    example: false
+                firstName:
+                    type: string
+                    description: First name of the user
+                    example: John
+                id:
+                    type: string
+                    description: Unique ID of the user
+                    example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    format: uuid
+                kcId:
+                    type: string
+                    description: Keycloak ID
+                    example: 550e8400-e29b-41d4-a716-446655440000
+                    format: uuid
+                lastName:
+                    type: string
+                    description: Last name of the user
+                    example: Doe
+                nickname:
+                    type: string
+                    description: Nickname
+                    example: JD
+            example:
+                admin: false
+                firstName: John
+                id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                kcId: 550e8400-e29b-41d4-a716-446655440000
+                lastName: Doe
+                nickname: JD
+            required:
+                - id
+                - kcId
+                - firstName
+                - lastName
+    securitySchemes:
+        oauth2_header_Authorization:
+            type: oauth2
+            description: OAuth2 flow
+            flows:
+                password:
+                    tokenUrl: http://localhost:8080/realms/LastingDynamics/protocol/openid-connect/token
+                    refreshUrl: http://localhost:8080/realms/LastingDynamics/protocol/openid-connect/token
+                    scopes:
+                        openid: Access basic profile lasting_scope
+tags:
+    - name: user
+      description: User service for managing users
+security:
+    - oauth2__:
+        - openid

@@ -1,0 +1,75 @@
+services:
+  backend:
+    build:
+      context: ./docker
+      dockerfile: DockerfileBE
+    container_name: backend
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - "9090:9090"
+    networks:
+      - be_network
+    volumes:
+      - .:/opt/app:Z
+      - ./tmp:/opt/app/tmp 
+    command: ["air", "-c", "/opt/app/air.toml"]
+
+
+  postgres:
+    image: postgres:15
+    build:
+      context: ./docker
+      dockerfile: DockerfileDB
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # POSTGRES_DB: ${DB_NAME}
+      POSTGRES_MULTIPLE_DATABASES: ${DB_NAME},${KC_DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - be_network
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: keycloak
+    command: start-dev
+    env_file:
+      - .env
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${KC_DB_NAME}
+      KC_DB_USERNAME: ${DB_USER}
+      KC_DB_PASSWORD: ${DB_PASS}
+      KEYCLOAK_ADMIN: ${KC_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASS}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - be_network
+
+
+networks:
+  be_network:
+    driver: bridge
+  opvn:
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.1
+
+
+volumes:
+  postgres_data:
